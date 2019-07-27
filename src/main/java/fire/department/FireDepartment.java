@@ -1,56 +1,88 @@
 package fire.department;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 
 public class FireDepartment {
     private final int NUMBER_OF_FIREMEN = 10;
-    private List<Fireman> firemenStuff;
+    private List<Fireman> firefighters;
     private Queue<Call> callQueue;
 
     public FireDepartment() {
+        this.firefighters = new ArrayList<>();
+        this.callQueue = new LinkedList<>();
         fillFiremenStuff();
-        callQueue = new LinkedList<>();
     }
 
     private void fillFiremenStuff() {
-        this.firemenStuff = new ArrayList<>();
+
         for (int i = 0; i < NUMBER_OF_FIREMEN; i++) {
-            firemenStuff.add(new Fireman("Fireman" + i));
+            firefighters.add(new Fireman("Fireman" + i));
         }
     }
 
-    public boolean respondNewCall(Call call) {
-        for (Fireman fireman : firemenStuff) {
-            if (fireman.isFree()) {
-                fireman.setFree(false);
-                fireman.setCall(call);
-                Thread thread = new Thread(fireman);
-                thread.start();
-                return true;
-            }
+
+    public void processIncomingCall(Call call) {
+
+        if(firefighters.stream().anyMatch(Fireman::isFree)){
+            firefighters.stream()
+                    .filter(Fireman::isFree)
+                    .findFirst()
+                    .ifPresent(fireman -> {
+                        fireman.setFree(false);
+                        fireman.setCall(call);
+                        Thread thread = new Thread(fireman);
+                        thread.start();
+                    });
+        }else {
+            checkCallQueue();
         }
-        callQueue.add(call);
-        checkCallQueue();
-        return false;
     }
 
     private boolean containsFreeFireman() {
-        return firemenStuff.stream().anyMatch(Fireman::isFree);
+        return firefighters.stream().anyMatch(Fireman::isFree);
     }
 
     private void checkCallQueue() {
+
         while (!callQueue.isEmpty()) {
             if (containsFreeFireman()) {
-                respondNewCall(callQueue.remove());
+                processIncomingCall(callQueue.remove());
             }
+
             try {
                 Thread.sleep(5000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+
         }
     }
 }
+
+
+
+
+/*    private Optional<Fireman> findFreeFirefighter(){
+        return firefighters.stream()
+                .filter(Fireman::isFree)
+                .findFirst()
+    }
+
+    private void waitToProcessCall(Call call){
+        callQueue.add(call);
+        checkCallQueue();
+    }
+
+    private void respondNewCall(Fireman fireman, Call call){
+        fireman.setCall(call);
+        Thread thread = new Thread(fireman);
+        thread.start();
+    }
+
+    public void processIncomingCall(Call call) {
+        findFreeFirefighter().ifPresent(fireman -> {
+            fireman.setFree(false);
+            respondNewCall(fireman,call);
+        });
+
+    }*/
