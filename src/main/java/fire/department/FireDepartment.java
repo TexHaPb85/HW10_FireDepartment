@@ -34,6 +34,7 @@ public class FireDepartment {
                         thread.start();
                     });
         }else {
+            callQueue.add(call);
             checkCallQueue();
         }
     }

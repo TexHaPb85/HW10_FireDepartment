@@ -6,7 +6,7 @@ public class Demonstrator {
     public static void demostrateWorkOfFireDepartment() {
         FireDepartment fireDepartment = new FireDepartment();
 
-        for (int i = 0; i < 15; i++) {
+        for (int i = 0; i < 40; i++) {
             fireDepartment.processIncomingCall(new Call("some street " + i));
         }
     }
